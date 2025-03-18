@@ -1,9 +1,13 @@
-const { Client } = require('whatsapp-web.js');
+const { Client, LocalAuth } = require('whatsapp-web.js');
 const express = require('express');
 const qrcode = require('qrcode-terminal');
 
 const app = express();
-const client = new Client();
+const PORT = process.env.PORT || 3000;
+
+const client = new Client({
+    authStrategy: new LocalAuth(), // Stores session to avoid repeated logins
+});
 
 client.on('qr', qr => {
     console.log("Scan the QR Code below to log in:");
@@ -17,7 +21,7 @@ client.on('ready', () => {
 client.initialize();
 
 app.get('/getProfilePic', async (req, res) => {
-    const number = req.query.number;  // Example: 1234567890
+    const number = req.query.number; // Example: 1234567890
     const chatId = number + "@c.us";
 
     try {
@@ -32,6 +36,4 @@ app.get('/getProfilePic', async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
-    console.log("WhatsApp API is running on port 3000");
-});
+app.listen(PORT, () => console.log(`WhatsApp API running on port ${PORT}`));
